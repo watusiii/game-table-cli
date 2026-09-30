@@ -1,0 +1,14 @@
+{
+  "name": "game-table-cli",
+  "private": true,
+  "version": "0.0.1",
+  "type": "module",
+  "description": "Command-line door into a Game Table room, for AI helpers.",
+  "scripts": {
+    "table": "node table.mjs"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "yjs": "^13.6.20"
+  }
+}
