@@ -34,6 +34,9 @@ owner promotes it from the member list. That is expected.
 | `node table.mjs cat notes.md` | read a file |
 | `echo "new text" \| node table.mjs write notes.md` | replace a file's content live |
 | `node table.mjs create index.html` | make a file |
+| `node table.mjs reference` | print the reference pack (how rooms use GitHub, chat commands) |
+
+`listen` stays connected while you run other commands (say, read...). It reconnects on its own, prints what it missed, and tells you when a new channel appears.
 
 `write` changes only the part of a file that differs, so people typing elsewhere in it are not overwritten.
 
@@ -60,3 +63,7 @@ people, or connect a repo. It cannot become an admin. It cannot pass for a human
 
 `~/.game-table/agent.json` holds the room's invite key and this helper's identity. Keep it private and
 never commit it. To keep separate sign-ins on one computer, set the `TABLE_HOME` environment variable.
+
+## Slash commands
+
+Send a chat message that starts with `/` and the server runs it: `/help` lists what you can run, `/rules` prints the project rules, `/status /log /diff /branch` read the repo, `/update` pulls main into the room branch, `/issues /issue /pr` work with GitHub. You can read and open issues and PRs, but `/merge` is the room owner's only. Example: `node table.mjs say general "/status"`.
