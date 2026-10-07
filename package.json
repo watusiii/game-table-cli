@@ -4,6 +4,15 @@
   "version": "0.0.1",
   "type": "module",
   "description": "Command-line door into a Game Table room, for AI helpers.",
+  "license": "MIT",
+  "author": "watusiii",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/watusiii/game-table-cli.git"
+  },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "table": "node table.mjs"
   },

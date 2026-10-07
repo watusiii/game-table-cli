@@ -2,3 +2,5 @@ node_modules/
 .DS_Store
 INTENTcopy.md
 tmpclaude*
+# Local tool settings, not part of the project.
+.claude/
