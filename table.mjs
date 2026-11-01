@@ -195,7 +195,8 @@ function joinRoom(config) {
         if (!finished) finish(new Error(msg.message));
         else console.error('The room says: ' + msg.message);
       }
-      events.emit(msg.type, msg);
+      // Room errors are protocol data, not EventEmitter's fatal unhandled 'error' event.
+      events.emit(msg.type === 'error' ? 'room:error' : msg.type, msg);
     });
   });
 }
@@ -381,7 +382,7 @@ async function listen(session, positional, flags) {
   const attach = (from) => {
     from.events.on('chat', ({ message }) => show(from, message));
     from.events.on('channels', ({ channels }) => announceChannels(channels ?? []));
-    from.events.on('error', (msg) => {
+    from.events.on('room:error', (msg) => {
       if (FATAL.includes(msg.code)) {
         fatal = msg.message;
         stopped = true;
