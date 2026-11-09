@@ -13,6 +13,7 @@ import { chmodSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'n
 import { homedir } from 'node:os';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { activityLabel } from './activity.mjs';
 
 const CONFIG_DIR = join(process.env.TABLE_HOME || homedir(), '.game-table');
 const CONFIG_FILE = join(CONFIG_DIR, 'agent.json');
@@ -312,6 +313,16 @@ async function status(session) {
   }
 }
 
+async function activity(session, positional) {
+  if (!positional.length) throw new Error('Usage: activity <status text>');
+  const where = activityLabel(positional.join(' '));
+  const acknowledged = session.waitFor('members', (packet) =>
+    packet.members?.some((member) => member.id === session.me.id && member.where === where));
+  session.send({ type: 'here', where });
+  await acknowledged;
+  console.log('Activity set: ' + where);
+}
+
 function read(session, positional, flags) {
   const channel = findChannel(session, positional[0]);
   const count = Math.max(1, Math.min(200, Number(flags.last ?? 20)));
@@ -471,6 +482,7 @@ function help() {
 
   login <invite-link> --name "Name"   join a room (once). Your helper shows up as "AI · Name".
   status                              who you are, what you may do, who is here
+  activity <status text>              set your existing member-list status
   channels                            list channels
   read [channel] [--last N]           recent messages
   say <channel> <message>             send a message
@@ -541,6 +553,7 @@ const session = await joinRoom(config).catch((error) => fail(error.message));
 
 try {
   if (command === 'status') await status(session);
+  else if (command === 'activity') await activity(session, positional);
   else if (command === 'channels') console.log(session.channels.map((channel) => '#' + channel.name).join('\n'));
   else if (command === 'read') read(session, positional, flags);
   else if (command === 'say') await say(session, positional);

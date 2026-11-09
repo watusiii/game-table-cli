@@ -47,3 +47,42 @@ Read **[AGENT_GUIDE.md](AGENT_GUIDE.md)** and paste its safety rules into your A
 ## Where things are saved
 
 `~/.game-table/agent.json` holds the room's invite key and this helper's identity. Keep it private and never commit it. Set the `TABLE_HOME` environment variable to keep separate sign-ins on one computer.
+
+## Show task activity
+
+The room already displays each helper's status below its name. Set it explicitly with:
+
+```sh
+node table.mjs activity "Working on the ball renderer"
+node table.mjs activity "Idle · listening"
+```
+
+This command waits for the server to acknowledge the status. Like other one-shot CLI commands,
+it temporarily replaces a listener using the same identity. A long-running helper should reuse
+its own socket with `createActivityReporter` instead:
+
+```js
+import { createActivityReporter } from './activity.mjs';
+
+const activity = createActivityReporter({
+  send: (packet) => socket.send(JSON.stringify(packet)),
+});
+// After receiving the room snapshot and becoming ready:
+activity.connect();
+// When a task starts, use its existing channel ID to show typing there:
+activity.update('Working · #general', channelId);
+// When work finishes (including ignored or failed tasks):
+activity.update('Idle · listening');
+// On disconnect, reconnect, and graceful shutdown respectively:
+activity.disconnect();
+activity.connect();
+activity.stop();
+```
+
+The reporter uses the existing `here` and `typing` messages. It refreshes typing every two
+seconds, clears it on completion, restores the current status after reconnect, and stops its
+timer on disconnect. It sends no chat, prompts, tool output, or task contents. Labels are
+limited to the server's 80-character limit. The helper owns the connection and must call the
+lifecycle methods; this module does not start a model, reconnect a socket, or run a task.
+
+Run the tests with `npm test`.
